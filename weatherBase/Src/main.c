@@ -62,7 +62,7 @@ SDRAM_HandleTypeDef hsdram1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-char * server_reply;
+char server_reply[400];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -87,23 +87,28 @@ err_t received(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 	char message[50] = "Recieving data:";
 	BSP_LCD_DisplayStringAtLine(4, message);
 	BSP_LCD_DisplayStringAtLine(5, (char*) p->payload);
-	server_reply = (char*) p->payload;
+	//server_reply[0] = (char) p->payload;
+	sprintf(&server_reply, p->payload);
+	//strtok(server_reply, ' ');
 	/*for(int i = 0; i < 200; i++)
 	{
 		HAL_UART_Transmit(&huart1, server_reply[i], 1, 1);
 	}*/
-	HAL_UART_Transmit(&huart1, (uint8_t*) "Payload output: \r\n", strlen("Payload output: \r\n"), 100);
-	HAL_UART_Transmit(&huart1, p->payload, p->len, 100);
-	ParseJson(server_reply, p->len);
+	//HAL_UART_Transmit(&huart1, (uint8_t*) "Payload output: \r\n", strlen("Payload output: \r\n"), 100);
+	//HAL_UART_Transmit(&huart1, p->payload, p->len, 100);
+	char test[400] = "{\"user\": \"johndoe\", \"admin\": false, \"uid\": 1000,\n  "
+			"\"groups\": [\"users\", \"wheel\", \"audio\", \"video\"]}";
+	ParseJson(test, p->len);
+	return 0;
 }
 err_t connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
 	char message[50] = "Connected with api";
 	BSP_LCD_SetFont(&Font8);
 	BSP_LCD_DisplayStringAtLine(2, message);
-	message = "Attempting GET request...";
-	BSP_LCD_DisplayStringAtLine(3, message);
-	char command[2000] = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819 HTTP/1.0\r\n\r\n";
+	char message2[50] = "Attempting GET request...";
+	BSP_LCD_DisplayStringAtLine(3, message2);
+	char command[200] = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819 HTTP/1.0\r\n\r\n";
 	//char * command = "string";
 	uint16_t commandlen = strlen(command);
 	tcp_write(tpcb,&command,strlen(command),1);
@@ -115,31 +120,43 @@ err_t err(void *arg, struct tcp_pcb *tpcb, err_t err){
 		BSP_LCD_SetFont(&Font8);
 		BSP_LCD_DisplayStringAtLine(2, message);
 }
-int ParseJson(char * server_reply, int len)
+static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
+	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start &&
+			strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
+		return 0;
+	}
+	return -1;
+}
+int ParseJson(char server_reply[400], int len)
 {
 	int i;
 	int r;
 	jsmn_parser p;
 	jsmntok_t t[500];
+	char buffer[60];
 
+	HAL_UART_Transmit(&huart1, server_reply, strlen(server_reply), 100);
+	HAL_UART_Transmit(&huart1, "\n\r", strlen("\n\r"), 100);
 	jsmn_init(&p);
-	r = jsmn_parse(&p, server_reply, strlen(server_reply), t, sizeof(t)/sizeof(t[0]));
+	r = jsmn_parse(&p, &server_reply, strlen(server_reply), t, sizeof(t)/sizeof(t[0]));
 	if (r < 0) {
-		printf("Failed to parse JSON: %d\n", r);
+		sprintf(&buffer, "Failed to parse json: %d\r\n", &r);
+		HAL_UART_Transmit(&huart1, buffer, strlen(buffer), 100);
 		return 1;
 	}
 
 	/* Assume the top-level element is an object */
 	if (r < 1 || t[0].type != JSMN_OBJECT) {
-		printf("Object expected\n");
+		HAL_UART_Transmit(&huart1, "Object expected\r\n", strlen("Object expected\r\n"), 100);
 		return 1;
 	}
 
 	for (i = 1; i < r; i++) {
-		if (jsoneq(server_reply, &t[i], "main") == 0) {
+		if (jsoneq(server_reply, &t[i], "user") == 0) {
 			/* We may use strndup() to fetch string value */
-			printf("- User: %.*s\n", t[i+1].end-t[i+1].start,
+			sprintf(&buffer,"- User: %.*s\n", t[i+1].end-t[i+1].start,
 					server_reply + t[i+1].start);
+			HAL_UART_Transmit(&huart1, buffer, strlen(buffer), 100);
 			i++;
 		}
 //		else if (jsoneq(server_reply, &t[i], "admin") == 0) {
