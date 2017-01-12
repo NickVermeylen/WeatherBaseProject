@@ -84,7 +84,7 @@ static void MX_USART1_UART_Init(void);
 err_t received(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 {
 	BSP_LCD_SetFont(&Font8);
-	char * message = "Recieving data:";
+	char message[50] = "Recieving data:";
 	BSP_LCD_DisplayStringAtLine(4, message);
 	BSP_LCD_DisplayStringAtLine(5, (char*) p->payload);
 	server_reply = (char*) p->payload;
@@ -98,7 +98,7 @@ err_t received(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 }
 err_t connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
-	char * message = "Connected with api";
+	char message[50] = "Connected with api";
 	BSP_LCD_SetFont(&Font8);
 	BSP_LCD_DisplayStringAtLine(2, message);
 	message = "Attempting GET request...";
@@ -111,7 +111,7 @@ err_t connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 	tcp_recv(tpcb, received);
 }
 err_t err(void *arg, struct tcp_pcb *tpcb, err_t err){
-	char * message = "FAILED TO CONNECT";
+	char message[50] = "FAILED TO CONNECT";
 		BSP_LCD_SetFont(&Font8);
 		BSP_LCD_DisplayStringAtLine(2, message);
 }
@@ -215,7 +215,7 @@ int main(void)
   BSP_LCD_SetBackColor(LCD_COLOR_RED);
 
   //char *host = "api.openweathermap.org";
-  char *message = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819 HTTP/1.0\r\n\r\n";
+  char message[100] = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819 HTTP/1.0\r\n\r\n";
   struct ip4_addr serverIp;
   IP4_ADDR(&serverIp, 178,62,207,82);  	//ip openweather server
   //IP4_ADDR(&serverIp, 192,168,0,148); //ip thuis van computer
