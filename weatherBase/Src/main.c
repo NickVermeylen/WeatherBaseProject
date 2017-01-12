@@ -38,6 +38,7 @@
 
 /*#include <unistd.h>
 #include <limits.h>*/
+#include <string.h>
 #include "stm32746g_discovery.h"
 #include "stm32746g_discovery_lcd.h"
 #include "stm32746g_discovery_sdram.h"
@@ -58,7 +59,7 @@ SDRAM_HandleTypeDef hsdram1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+char * server_reply;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -77,11 +78,33 @@ static void MX_USART1_UART_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+err_t received(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
+{
+	BSP_LCD_SetFont(&Font8);
+	char * message = "Recieving data:";
+	BSP_LCD_DisplayStringAtLine(4, message);
+	BSP_LCD_DisplayStringAtLine(5, (char*) p->payload);
+	server_reply = (char*) p->payload;
+	/*for(int i = 0; i < 200; i++)
+	{
+		HAL_UART_Transmit(&huart1, server_reply[i], 1, 1);
+	}*/
+	HAL_UART_Transmit(&huart1, (uint8_t*) "Payload output: \r\n", strlen("Payload output: \r\n"), 100);
+	HAL_UART_Transmit(&huart1, p->payload, p->len, 100);
+}
 err_t connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
 	char * message = "Connected with api";
 	BSP_LCD_SetFont(&Font8);
 	BSP_LCD_DisplayStringAtLine(2, message);
+	message = "Attempting GET request...";
+	BSP_LCD_DisplayStringAtLine(3, message);
+	char command[2000] = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819 HTTP/1.0\r\n\r\n";
+	//char * command = "string";
+	uint16_t commandlen = strlen(command);
+	tcp_write(tpcb,&command,strlen(command),1);
+	HAL_UART_Transmit(&huart1, command, commandlen, 100);
+	tcp_recv(tpcb, received);
 }
 err_t err(void *arg, struct tcp_pcb *tpcb, err_t err){
 	char * message = "FAILED TO CONNECT";
@@ -136,10 +159,10 @@ int main(void)
   BSP_LCD_SetBackColor(LCD_COLOR_RED);
 
   //char *host = "api.openweathermap.org";
-  char *message = "GET /data/2.5/weather?id=2786641&APPID=6b5777cf90270ca76699afc2dd042d68 HTTP/1.0\r\nHost: api.openweathermap.org\r\n\r\n ";
-  char server_reply[2000];
+  char *message = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819 HTTP/1.0\r\n\r\n";
   struct ip4_addr serverIp;
-  IP4_ADDR(&serverIp, 178,62,207,82);
+  IP4_ADDR(&serverIp, 178,62,207,82);  	//ip openweather server
+  //IP4_ADDR(&serverIp, 192,168,0,148); //ip thuis van computer
 
   /*struct hostent *server;
   struct sockaddr_in serv_addr;
@@ -175,6 +198,8 @@ int main(void)
 	  		BSP_LCD_DisplayStringAtLine(2, message);
 	  		BSP_LCD_DisplayStringAtLine(3, errorval);*/
   }
+  BSP_LCD_SetFont(&Font8);
+  BSP_LCD_DisplayStringAtLine(8, server_reply);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -378,7 +403,7 @@ static void MX_USART1_UART_Init(void)
 
   huart1.Instance = USART1;
   huart1.Init.BaudRate = 115200;
-  huart1.Init.WordLength = UART_WORDLENGTH_7B;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
   huart1.Init.Mode = UART_MODE_TX_RX;
