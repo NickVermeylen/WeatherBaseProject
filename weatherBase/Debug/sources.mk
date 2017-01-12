@@ -30,6 +30,7 @@ Drivers/BSP/STM32746G-Discovery \
 Drivers/BSP/Utilities/Fonts \
 Drivers/CMSIS/Device/ST/STM32F7xx/Source/Templates/gcc \
 Drivers/CMSIS/Device/ST/STM32F7xx/Source/Templates \
+Drivers/JSMN \
 Drivers/STM32F7xx_HAL_Driver/Src \
 Middlewares/Third_Party/LwIP/src/api \
 Middlewares/Third_Party/LwIP/src/core \

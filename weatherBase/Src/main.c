@@ -39,6 +39,9 @@
 /*#include <unistd.h>
 #include <limits.h>*/
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "jsmn.h"
 #include "stm32746g_discovery.h"
 #include "stm32746g_discovery_lcd.h"
 #include "stm32746g_discovery_sdram.h"
@@ -91,6 +94,7 @@ err_t received(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 	}*/
 	HAL_UART_Transmit(&huart1, (uint8_t*) "Payload output: \r\n", strlen("Payload output: \r\n"), 100);
 	HAL_UART_Transmit(&huart1, p->payload, p->len, 100);
+	ParseJson(server_reply, p->len);
 }
 err_t connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
@@ -111,9 +115,61 @@ err_t err(void *arg, struct tcp_pcb *tpcb, err_t err){
 		BSP_LCD_SetFont(&Font8);
 		BSP_LCD_DisplayStringAtLine(2, message);
 }
-void trick(void)
+int ParseJson(char * server_reply, int len)
 {
+	int i;
+	int r;
+	jsmn_parser p;
+	jsmntok_t t[500];
 
+	jsmn_init(&p);
+	r = jsmn_parse(&p, server_reply, strlen(server_reply), t, sizeof(t)/sizeof(t[0]));
+	if (r < 0) {
+		printf("Failed to parse JSON: %d\n", r);
+		return 1;
+	}
+
+	/* Assume the top-level element is an object */
+	if (r < 1 || t[0].type != JSMN_OBJECT) {
+		printf("Object expected\n");
+		return 1;
+	}
+
+	for (i = 1; i < r; i++) {
+		if (jsoneq(server_reply, &t[i], "main") == 0) {
+			/* We may use strndup() to fetch string value */
+			printf("- User: %.*s\n", t[i+1].end-t[i+1].start,
+					server_reply + t[i+1].start);
+			i++;
+		}
+//		else if (jsoneq(server_reply, &t[i], "admin") == 0) {
+//			/* We may additionally check if the value is either "true" or "false" */
+//			printf("- Admin: %.*s\n", t[i+1].end-t[i+1].start,
+//					server_reply + t[i+1].start);
+//			i++;
+//		} else if (jsoneq(server_reply, &t[i], "uid") == 0) {
+//			/* We may want to do strtol() here to get numeric value */
+//			printf("- UID: %.*s\n", t[i+1].end-t[i+1].start,
+//					server_reply + t[i+1].start);
+//			i++;
+//		} else if (jsoneq(server_reply, &t[i], "groups") == 0) {
+//			int j;
+//			printf("- Groups:\n");
+//			if (t[i+1].type != JSMN_ARRAY) {
+//				continue; /* We expect groups to be an array of strings */
+//			}
+//			for (j = 0; j < t[i+1].size; j++) {
+//				jsmntok_t *g = &t[i+j+2];
+//				printf("  * %.*s\n", g->end - g->start, server_reply + g->start);
+//			}
+//			i += t[i+1].size + 1;
+//		}
+		else {
+			printf("Unexpected key: %.*s\n", t[i].end-t[i].start,
+					server_reply + t[i].start);
+		}
+	}
+		return EXIT_SUCCESS;
 }
 /* USER CODE END 0 */
 

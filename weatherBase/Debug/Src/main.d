@@ -58,6 +58,7 @@ Src/main.o: ../Src/main.c \
  E:/Documents/F7\ Projects/WeatherBaseProject/weatherBase/Middlewares/Third_Party/LwIP/src/include/lwip/dhcp.h \
  E:/Documents/F7\ Projects/WeatherBaseProject/weatherBase/Middlewares/Third_Party/LwIP/src/include/lwip/lwip_timers.h \
  E:/Documents/F7\ Projects/WeatherBaseProject/weatherBase/Inc/ethernetif.h \
+ E:/Documents/F7\ Projects/WeatherBaseProject/weatherBase/Drivers/JSMN/jsmn.h \
  E:/Documents/F7\ Projects/WeatherBaseProject/weatherBase/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery.h \
  E:/Documents/F7\ Projects/WeatherBaseProject/weatherBase/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery_lcd.h \
  e:\documents\f7\ projects\weatherbaseproject\weatherbase\drivers\bsp\components\rk043fn48h\rk043fn48h.h \
@@ -187,6 +188,8 @@ E:/Documents/F7\ Projects/WeatherBaseProject/weatherBase/Middlewares/Third_Party
 E:/Documents/F7\ Projects/WeatherBaseProject/weatherBase/Middlewares/Third_Party/LwIP/src/include/lwip/lwip_timers.h:
 
 E:/Documents/F7\ Projects/WeatherBaseProject/weatherBase/Inc/ethernetif.h:
+
+E:/Documents/F7\ Projects/WeatherBaseProject/weatherBase/Drivers/JSMN/jsmn.h:
 
 E:/Documents/F7\ Projects/WeatherBaseProject/weatherBase/Drivers/BSP/STM32746G-Discovery/stm32746g_discovery.h:
 
