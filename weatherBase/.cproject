@@ -53,6 +53,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/weatherBase/Drivers/BSP/STM32746G-Discovery}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/weatherBase/Drivers/BSP/Utilities/Fonts}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/weatherBase/Drivers/JSMN}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/weatherBase/Drivers/cJSON}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1352489367" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=&quot;__attribute__((weak))&quot;"/>
@@ -114,8 +115,8 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration artifactName="weatherBase" configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="weatherBase"/>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/weatherBase"/>
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>

@@ -98,27 +98,29 @@ err_t received(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 	//HAL_UART_Transmit(&huart1, p->payload, p->len, 100);
 	char test[400] = "{\"user\": \"johndoe\", \"admin\": false, \"uid\": 1000,\n  "
 			"\"groups\": [\"users\", \"wheel\", \"audio\", \"video\"]}";
-	ParseJson(test, p->len);
+	ParseJson(server_reply, p->len);
 	return 0;
 }
 err_t connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
 	char message[50] = "Connected with api";
 	BSP_LCD_SetFont(&Font8);
-	BSP_LCD_DisplayStringAtLine(2, message);
+	BSP_LCD_DisplayStringAtLine(2, (uint8_t*) message);
 	char message2[50] = "Attempting GET request...";
-	BSP_LCD_DisplayStringAtLine(3, message2);
+	BSP_LCD_DisplayStringAtLine(3, (uint8_t*) message2);
 	char command[200] = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819 HTTP/1.0\r\n\r\n";
 	//char * command = "string";
 	uint16_t commandlen = strlen(command);
 	tcp_write(tpcb,&command,strlen(command),1);
-	HAL_UART_Transmit(&huart1, command, commandlen, 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*) command, commandlen, 100);
 	tcp_recv(tpcb, received);
+	return 0;
 }
 err_t err(void *arg, struct tcp_pcb *tpcb, err_t err){
 	char message[50] = "FAILED TO CONNECT";
 		BSP_LCD_SetFont(&Font8);
-		BSP_LCD_DisplayStringAtLine(2, message);
+		BSP_LCD_DisplayStringAtLine(2, (uint8_t*) message);
+		return 0;
 }
 static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
 	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start &&
@@ -135,28 +137,28 @@ int ParseJson(char server_reply[400], int len)
 	jsmntok_t t[500];
 	char buffer[60];
 
-	HAL_UART_Transmit(&huart1, server_reply, strlen(server_reply), 100);
-	HAL_UART_Transmit(&huart1, "\n\r", strlen("\n\r"), 100);
+	//HAL_UART_Transmit(&huart1, (uint8_t*) server_reply, strlen(server_reply), 100);
+	//HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r", strlen("\n\r"), 100);
 	jsmn_init(&p);
 	r = jsmn_parse(&p, &server_reply, strlen(server_reply), t, sizeof(t)/sizeof(t[0]));
 	if (r < 0) {
-		sprintf(&buffer, "Failed to parse json: %d\r\n", &r);
-		HAL_UART_Transmit(&huart1, buffer, strlen(buffer), 100);
+		sprintf(&buffer, "Failed to parse json: %d\r\n", r);
+		HAL_UART_Transmit(&huart1, (uint8_t*) buffer, strlen(buffer), 100);
 		return 1;
 	}
 
 	/* Assume the top-level element is an object */
 	if (r < 1 || t[0].type != JSMN_OBJECT) {
-		HAL_UART_Transmit(&huart1, "Object expected\r\n", strlen("Object expected\r\n"), 100);
+		HAL_UART_Transmit(&huart1, (uint8_t*) "Object expected\r\n", strlen("Object expected\r\n"), 100);
 		return 1;
 	}
 
 	for (i = 1; i < r; i++) {
-		if (jsoneq(server_reply, &t[i], "user") == 0) {
+		if (jsoneq(server_reply, &t[i], "main") == 0) {
 			/* We may use strndup() to fetch string value */
 			sprintf(&buffer,"- User: %.*s\n", t[i+1].end-t[i+1].start,
 					server_reply + t[i+1].start);
-			HAL_UART_Transmit(&huart1, buffer, strlen(buffer), 100);
+			HAL_UART_Transmit(&huart1, (uint8_t*) buffer, strlen(buffer), 100);
 			i++;
 		}
 //		else if (jsoneq(server_reply, &t[i], "admin") == 0) {
@@ -182,8 +184,9 @@ int ParseJson(char server_reply[400], int len)
 //			i += t[i+1].size + 1;
 //		}
 		else {
-			printf("Unexpected key: %.*s\n", t[i].end-t[i].start,
+			sprintf("Unexpected key: %.*s\n", t[i].end-t[i].start,
 					server_reply + t[i].start);
+			HAL_UART_Transmit(&huart1, (uint8_t*) buffer, strlen(buffer), 100);
 		}
 	}
 		return EXIT_SUCCESS;
