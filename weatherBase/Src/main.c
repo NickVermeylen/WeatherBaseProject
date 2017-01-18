@@ -42,6 +42,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "jsmn.h"
+//#include "cJSON.h"
 #include "stm32746g_discovery.h"
 #include "stm32746g_discovery_lcd.h"
 #include "stm32746g_discovery_sdram.h"
@@ -62,7 +63,7 @@ SDRAM_HandleTypeDef hsdram1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-char server_reply[400];
+char server_reply[800];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -81,47 +82,27 @@ static void MX_USART1_UART_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-err_t received(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
+/*int ParsingJson(char * server_reply, int len)
 {
-	BSP_LCD_SetFont(&Font8);
-	char message[50] = "Recieving data:";
-	BSP_LCD_DisplayStringAtLine(4, message);
-	BSP_LCD_DisplayStringAtLine(5, (char*) p->payload);
-	//server_reply[0] = (char) p->payload;
-	sprintf(&server_reply, p->payload);
-	//strtok(server_reply, ' ');
-	/*for(int i = 0; i < 200; i++)
-	{
-		HAL_UART_Transmit(&huart1, server_reply[i], 1, 1);
-	}*/
-	//HAL_UART_Transmit(&huart1, (uint8_t*) "Payload output: \r\n", strlen("Payload output: \r\n"), 100);
-	//HAL_UART_Transmit(&huart1, p->payload, p->len, 100);
-	char test[400] = "{\"user\": \"johndoe\", \"admin\": false, \"uid\": 1000,\n  "
-			"\"groups\": [\"users\", \"wheel\", \"audio\", \"video\"]}";
-	ParseJson(server_reply, p->len);
-	return 0;
-}
-err_t connected(void *arg, struct tcp_pcb *tpcb, err_t err)
-{
-	char message[50] = "Connected with api";
-	BSP_LCD_SetFont(&Font8);
-	BSP_LCD_DisplayStringAtLine(2, (uint8_t*) message);
-	char message2[50] = "Attempting GET request...";
-	BSP_LCD_DisplayStringAtLine(3, (uint8_t*) message2);
-	char command[200] = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819 HTTP/1.0\r\n\r\n";
-	//char * command = "string";
-	uint16_t commandlen = strlen(command);
-	tcp_write(tpcb,&command,strlen(command),1);
-	HAL_UART_Transmit(&huart1, (uint8_t*) command, commandlen, 100);
-	tcp_recv(tpcb, received);
-	return 0;
-}
-err_t err(void *arg, struct tcp_pcb *tpcb, err_t err){
-	char message[50] = "FAILED TO CONNECT";
-		BSP_LCD_SetFont(&Font8);
-		BSP_LCD_DisplayStringAtLine(2, (uint8_t*) message);
-		return 0;
-}
+	char buffer[60];
+	cJSON *root;
+	cJSON *fmt;
+	root = cJSON_CreateObject();
+	cJSON_AddItemToObject(root, "name", cJSON_CreateString("Jack (\"Bee\") Nimble"));
+	cJSON_AddItemToObject(root, "format", fmt = cJSON_CreateObject());
+	cJSON_AddStringToObject(fmt, "type", "rect");
+	cJSON_AddNumberToObject(fmt, "width", 1920);
+	cJSON_AddNumberToObject(fmt, "height", 1080);
+	cJSON_AddFalseToObject (fmt, "interlace");
+	cJSON_AddNumberToObject(fmt, "frame rate", 24);
+	cJSON * json;
+	json = cJSON_Parse(&root);
+	//cJSON *format = cJSON_GetObjectItem(json, "format");
+	//int framerate = cJSON_GetObjectItem(format, "frame rate")->valueint;
+	//sprintf(&buffer, framerate);
+	HAL_UART_Transmit(&huart1, (uint8_t*) buffer, strlen(buffer), 100);
+	return 1;
+}*/
 static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
 	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start &&
 			strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
@@ -129,44 +110,59 @@ static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
 	}
 	return -1;
 }
-int ParseJson(char server_reply[400], int len)
+int ParseJson(char server_reply[800], int len)
 {
+	HAL_UART_Transmit(&huart1, (uint8_t*) "Entering Parse\r\n", strlen("Entering Parse\r\n"), 100);
 	int i;
 	int r;
 	jsmn_parser p;
-	jsmntok_t t[500];
+	jsmntok_t t[800];
 	char buffer[60];
 
-	//HAL_UART_Transmit(&huart1, (uint8_t*) server_reply, strlen(server_reply), 100);
-	//HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r", strlen("\n\r"), 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*) server_reply, strlen(server_reply), 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r", strlen("\n\r"), 100);
 	jsmn_init(&p);
-	r = jsmn_parse(&p, &server_reply, strlen(server_reply), t, sizeof(t)/sizeof(t[0]));
+	r = jsmn_parse(&p, server_reply, strlen(server_reply), t, sizeof(t)/sizeof(t[0]));
 	if (r < 0) {
 		sprintf(&buffer, "Failed to parse json: %d\r\n", r);
 		HAL_UART_Transmit(&huart1, (uint8_t*) buffer, strlen(buffer), 100);
 		return 1;
 	}
-
 	/* Assume the top-level element is an object */
 	if (r < 1 || t[0].type != JSMN_OBJECT) {
 		HAL_UART_Transmit(&huart1, (uint8_t*) "Object expected\r\n", strlen("Object expected\r\n"), 100);
 		return 1;
 	}
 
+	HAL_UART_Transmit(&huart1, (uint8_t*) r, 1, 100);
 	for (i = 1; i < r; i++) {
-		if (jsoneq(server_reply, &t[i], "main") == 0) {
+		if (jsoneq(server_reply, &t[i], "description") == 0) {
 			/* We may use strndup() to fetch string value */
-			sprintf(&buffer,"- User: %.*s\n", t[i+1].end-t[i+1].start,
+			sprintf(&buffer,"- name: %.*s\r\n", t[i+1].end-t[i+1].start,
 					server_reply + t[i+1].start);
 			HAL_UART_Transmit(&huart1, (uint8_t*) buffer, strlen(buffer), 100);
 			i++;
 		}
-//		else if (jsoneq(server_reply, &t[i], "admin") == 0) {
-//			/* We may additionally check if the value is either "true" or "false" */
-//			printf("- Admin: %.*s\n", t[i+1].end-t[i+1].start,
-//					server_reply + t[i+1].start);
-//			i++;
-//		} else if (jsoneq(server_reply, &t[i], "uid") == 0) {
+		else if (jsoneq(server_reply, &t[i], "main") == 0) {
+			/* We may additionally check if the value is either "true" or "false" */
+			sprintf(&buffer,"- age: %.*s\r\n", t[i+1].end-t[i+1].start,
+					server_reply + t[i+1].start);
+			HAL_UART_Transmit(&huart1, (uint8_t*) buffer, strlen(buffer), 100);
+			i++;
+		}
+		else if (jsoneq(server_reply, &t[i], "weather") == 0) {
+					int j;
+					printf("- Groups:\n");
+					if (t[i+1].type != JSMN_ARRAY) {
+						continue; /* We expect groups to be an array of strings */
+					}
+					for (j = 0; j < t[i+1].size; j++) {
+						jsmntok_t *g = &t[i+j+2];
+						printf("  * %.*s\n", g->end - g->start, server_reply + g->start);
+					}
+					i += t[i+1].size + 1;
+				}
+//		else if (jsoneq(server_reply, &t[i], "uid") == 0) {
 //			/* We may want to do strtol() here to get numeric value */
 //			printf("- UID: %.*s\n", t[i+1].end-t[i+1].start,
 //					server_reply + t[i+1].start);
@@ -190,6 +186,49 @@ int ParseJson(char server_reply[400], int len)
 		}
 	}
 		return EXIT_SUCCESS;
+}
+err_t received(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
+{
+	BSP_LCD_SetFont(&Font8);
+	char message[50] = "Recieving data:";
+	BSP_LCD_DisplayStringAtLine(4, message);
+	BSP_LCD_DisplayStringAtLine(5, (char*) p->payload);
+	//server_reply = (char) p->payload; doesnt work like that!
+	//char * response = strstr(p->payload, "\r\n\r\n");
+	//response =+ 4;
+	char * resp = strstr(p->payload, "\r\n\r\n");
+	resp += 4;
+	//server_reply=strdup(resp);
+	sprintf(&server_reply, resp);
+
+	HAL_UART_Transmit(&huart1, (uint8_t*) server_reply, strlen(server_reply), 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r", strlen("\n\r"), 100);
+
+	//sprintf(&server_reply, "{ \"main\":\"Rain\",\"description\":\"shower rain\" }");
+	//sprintf(&server_reply, "{\"weather\":[{\"id\":521,\"main\":\"Rain\",\"description\":\"shower rain\",\"icon\":\"09d\"}]}");
+	ParseJson(&server_reply, strlen(server_reply));
+	return 0;
+}
+err_t connected(void *arg, struct tcp_pcb *tpcb, err_t err)
+{
+	char message[50] = "Connected with api";
+	BSP_LCD_SetFont(&Font8);
+	BSP_LCD_DisplayStringAtLine(2, (uint8_t*) message);
+	char message2[50] = "Attempting GET request...";
+	BSP_LCD_DisplayStringAtLine(3, (uint8_t*) message2);
+	char command[200] = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819 HTTP/1.0\r\n\r\n";
+	//char * command = "string";
+	uint16_t commandlen = strlen(command);
+	tcp_write(tpcb,&command,strlen(command),1);
+	HAL_UART_Transmit(&huart1, (uint8_t*) command, commandlen, 100);
+	tcp_recv(tpcb, received);
+	return 0;
+}
+err_t err(void *arg, struct tcp_pcb *tpcb, err_t err){
+	char message[50] = "FAILED TO CONNECT";
+		BSP_LCD_SetFont(&Font8);
+		BSP_LCD_DisplayStringAtLine(2, (uint8_t*) message);
+		return 0;
 }
 /* USER CODE END 0 */
 

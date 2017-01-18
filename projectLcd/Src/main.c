@@ -39,6 +39,11 @@
 #include "stm32746g_discovery_sdram.h"
 #include "stm32746g_discovery_ts.h"
 #include "partlySunny_data.h"
+#include "Sunny_data.h"
+#include "Cloudy_data.h"
+#include "Rain_data.h"
+#include "Showers_data.h"
+#include "Foggy_data.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -110,6 +115,19 @@ int main(void)
 
   BSP_LCD_SelectLayer(1);
   BSP_LCD_DrawBitmap(0,0,PARTLYSUNNY_DATA);
+  HAL_Delay(2000);
+  BSP_LCD_DrawBitmap(193,0,SUNNY_DATA);
+  HAL_Delay(2000);
+  BSP_LCD_DrawBitmap(0,0,CLOUDY_DATA);
+  HAL_Delay(2000);
+  BSP_LCD_DrawBitmap(193,0,SHOWERS_DATA);
+  HAL_Delay(2000);
+  BSP_LCD_DrawBitmap(0,0,RAIN_DATA);
+  HAL_Delay(2000);
+  BSP_LCD_DrawBitmap(193,0,FOGGY_DATA);
+  BSP_LCD_SetFont(&Font12);
+  char message[50] = "Temperature of Min: 2°C & Max: 8°C";
+  BSP_LCD_DisplayStringAtLine(14, message);
   //BSP_LCD_LayerRgb565Init(0, PARTLYSUNNY_DATA);
   /* USER CODE END 2 */
 
