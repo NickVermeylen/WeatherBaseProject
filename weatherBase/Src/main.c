@@ -38,15 +38,15 @@
 
 /*#include <unistd.h>
 #include <limits.h>*/
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "own/Processing.h"
+//#include <ctype.h>
 #include "jsmn.h"
 //#include "cJSON.h"
 #include "stm32746g_discovery.h"
 #include "stm32746g_discovery_lcd.h"
 #include "stm32746g_discovery_sdram.h"
 #include "stm32746g_discovery_ts.h"
+#include "tmp/test.txt"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -63,7 +63,9 @@ SDRAM_HandleTypeDef hsdram1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-char server_reply[800];
+char server_reply[2000];
+int counter;
+data weather;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,6 +84,79 @@ static void MX_USART1_UART_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+void processResponse()
+{
+	counter=1;
+	char buffer[20] = "EMPTY BUFFER";
+	sprintf(buffer, "Geen integers");
+	HAL_UART_Transmit(&huart1, (uint8_t*) "\r\nResponse:", strlen("\r\nResponse:"), 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*) buffer, strlen(buffer), 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*) "\r\n", strlen("\r\n"), 100);
+
+	HAL_UART_Transmit(&huart1, (uint8_t*) server_reply, strlen(server_reply), 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r", strlen("\n\r"), 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r", strlen("\n\r"), 100);
+
+	HAL_UART_Transmit(&huart1, (uint8_t*) "Modify string", strlen("Modify string"), 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r", strlen("\n\r"), 100);
+	char * resp = "EMPTY RESPONSE";
+	  	//resp = strstr(p->payload, "<weather");
+	  	/*HAL_UART_Transmit(&huart1, (uint8_t*) resp, strlen(resp), 100);
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r", strlen("\n\r"), 100);*/
+	resp = strstr(server_reply, "number=");
+	if(resp != NULL)
+	{
+		//This should get weather number
+		HAL_UART_Transmit(&huart1, (uint8_t*) resp, strlen(resp), 100);
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r\n\r", strlen("\n\r\n\r"), 100);
+	  	char * token;
+	  	token = strtok(resp, "\""); //front part = useless
+	  	token = strtok(NULL, "\""); //schould be min val
+		HAL_UART_Transmit(&huart1, (uint8_t*) token, strlen(token), 100);
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r\n\r", strlen("\n\r\n\r"), 100);
+
+	  	resp = strstr(server_reply, "<clouds");
+		//This gets cloudyness
+		HAL_UART_Transmit(&huart1, (uint8_t*) resp, strlen(resp), 100);
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r\n\r", strlen("\n\r\n\r"), 100);
+	  	resp = strstr(resp, "name=");
+	  	token = strtok(resp, "\""); //front part = useless
+	  	token = strtok(NULL, "\""); //schould be cloudy val
+		HAL_UART_Transmit(&huart1, (uint8_t*) token, strlen(token), 100);
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r\n\r", strlen("\n\r\n\r"), 100);
+
+	  	resp = strstr(server_reply, "<wind><speed");
+		//This gets windyness
+		HAL_UART_Transmit(&huart1, (uint8_t*) resp, strlen(resp), 100);
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r\n\r", strlen("\n\r\n\r"), 100);
+	  	resp = strstr(resp, "name=");
+	  	token = strtok(resp, "\""); //front part = useless
+	  	token = strtok(NULL, "\""); //schould be windy val
+		HAL_UART_Transmit(&huart1, (uint8_t*) token, strlen(token), 100);
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r\n\r", strlen("\n\r\n\r"), 100);
+
+
+	  	resp = strstr(server_reply, "<temperature");
+		//This gets Min en Max temperatuur
+		HAL_UART_Transmit(&huart1, (uint8_t*) resp, strlen(resp), 100);
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r\n\r", strlen("\n\r\n\r"), 100);
+	  	resp = strstr(resp, "min=");
+	  	token = strtok(resp, "\""); //front part = useless
+	  	token = strtok(NULL, "\""); //schould be min val
+		HAL_UART_Transmit(&huart1, (uint8_t*) token, strlen(token), 100);
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r\n\r", strlen("\n\r\n\r"), 100);
+	  	token = strtok(NULL, "\""); //throw away
+	  	token = strtok(NULL, "\""); //schould be max val
+		HAL_UART_Transmit(&huart1, (uint8_t*) token, strlen(token), 100);
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r\n\r", strlen("\n\r\n\r"), 100);
+		HAL_UART_Transmit(&huart1, (uint8_t*) server_reply, strlen(server_reply), 100);
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r\n\r", strlen("\n\r\n\r"), 100);
+	}
+	else
+	{
+	  	HAL_UART_Transmit(&huart1, (uint8_t*) "No MATCH for TEMP\n\r\n\r", strlen("No MATCH for TEMP\n\r\n\r"), 100);
+	}
+}
 /*int ParsingJson(char * server_reply, int len)
 {
 	char buffer[60];
@@ -187,26 +262,19 @@ int ParseJson(char server_reply[800], int len)
 	}
 		return EXIT_SUCCESS;
 }
+
 err_t received(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 {
 	BSP_LCD_SetFont(&Font8);
 	char message[50] = "Recieving data:";
 	BSP_LCD_DisplayStringAtLine(4, message);
 	BSP_LCD_DisplayStringAtLine(5, (char*) p->payload);
-	//server_reply = (char) p->payload; doesnt work like that!
-	//char * response = strstr(p->payload, "\r\n\r\n");
-	//response =+ 4;
-	char * resp = strstr(p->payload, "\r\n\r\n");
-	resp += 4;
-	//server_reply=strdup(resp);
-	sprintf(&server_reply, resp);
-
-	HAL_UART_Transmit(&huart1, (uint8_t*) server_reply, strlen(server_reply), 100);
-	HAL_UART_Transmit(&huart1, (uint8_t*) "\n\r", strlen("\n\r"), 100);
-
-	//sprintf(&server_reply, "{ \"main\":\"Rain\",\"description\":\"shower rain\" }");
-	//sprintf(&server_reply, "{\"weather\":[{\"id\":521,\"main\":\"Rain\",\"description\":\"shower rain\",\"icon\":\"09d\"}]}");
-	ParseJson(&server_reply, strlen(server_reply));
+	sprintf(server_reply, p->payload);
+	HAL_UART_Transmit(&huart1, (uint8_t*) "RECIEVING..\r\n", strlen("RECIEVING..\r\n"), 100);
+	vProcessingSnipping(server_reply, &weather);
+	HAL_UART_Transmit(&huart1, (uint8_t*) "\r\n\r\nTEST..\r\n", strlen("\r\n\r\nTEST..\r\n"), 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*) weather.clouds, strlen(weather.clouds), 100);
+	HAL_UART_Transmit(&huart1, (uint8_t*) "\r\n\r\nTEST..\r\n", strlen("\r\n\r\nTEST..\r\n"), 100);
 	return 0;
 }
 err_t connected(void *arg, struct tcp_pcb *tpcb, err_t err)
@@ -216,11 +284,10 @@ err_t connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 	BSP_LCD_DisplayStringAtLine(2, (uint8_t*) message);
 	char message2[50] = "Attempting GET request...";
 	BSP_LCD_DisplayStringAtLine(3, (uint8_t*) message2);
-	char command[200] = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819 HTTP/1.0\r\n\r\n";
-	//char * command = "string";
+	char command[200] = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819&units=metric&mode=xml HTTP/1.0\r\n\r\n";
 	uint16_t commandlen = strlen(command);
-	tcp_write(tpcb,&command,strlen(command),1);
 	HAL_UART_Transmit(&huart1, (uint8_t*) command, commandlen, 100);
+	tcp_write(tpcb,&command,strlen(command),1);
 	tcp_recv(tpcb, received);
 	return 0;
 }
@@ -274,7 +341,6 @@ int main(void)
   BSP_LCD_SetBackColor(LCD_COLOR_RED);
 
   //char *host = "api.openweathermap.org";
-  char message[100] = "GET /data/2.5/weather?id=2786641&APPID=6114c658e93e58c695e14114fe716819 HTTP/1.0\r\n\r\n";
   struct ip4_addr serverIp;
   IP4_ADDR(&serverIp, 178,62,207,82);  	//ip openweather server
   //IP4_ADDR(&serverIp, 192,168,0,148); //ip thuis van computer
@@ -313,6 +379,7 @@ int main(void)
 	  		BSP_LCD_DisplayStringAtLine(2, message);
 	  		BSP_LCD_DisplayStringAtLine(3, errorval);*/
   }
+
   BSP_LCD_SetFont(&Font8);
   BSP_LCD_DisplayStringAtLine(8, server_reply);
   /* USER CODE END 2 */

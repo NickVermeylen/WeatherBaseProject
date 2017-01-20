@@ -38,12 +38,7 @@
 #include "stm32746g_discovery_lcd.h"
 #include "stm32746g_discovery_sdram.h"
 #include "stm32746g_discovery_ts.h"
-#include "partlySunny_data.h"
-#include "Sunny_data.h"
-#include "Cloudy_data.h"
-#include "Rain_data.h"
-#include "Showers_data.h"
-#include "Foggy_data.h"
+#include "own/screen.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -102,32 +97,10 @@ int main(void)
   MX_USART1_UART_Init();
 
   /* USER CODE BEGIN 2 */
-  BSP_LCD_Init();
-  BSP_LCD_LayerDefaultInit(0,LCD_FB_START_ADDRESS);
-  BSP_LCD_LayerDefaultInit(1,LCD_FB_START_ADDRESS + (BSP_LCD_GetXSize()*BSP_LCD_GetYSize()*4));
-  BSP_LCD_DisplayOn();
-  BSP_LCD_SelectLayer(0);
-  BSP_LCD_Clear(LCD_COLOR_BLACK);
-  BSP_LCD_SelectLayer(1);
-  BSP_LCD_Clear(LCD_COLOR_DARKMAGENTA);
-  BSP_LCD_SetTransparency(0,0);
-  BSP_LCD_SetTransparency(1,255);
-
-  BSP_LCD_SelectLayer(1);
-  BSP_LCD_DrawBitmap(0,0,PARTLYSUNNY_DATA);
-  HAL_Delay(2000);
-  BSP_LCD_DrawBitmap(193,0,SUNNY_DATA);
-  HAL_Delay(2000);
-  BSP_LCD_DrawBitmap(0,0,CLOUDY_DATA);
-  HAL_Delay(2000);
-  BSP_LCD_DrawBitmap(193,0,SHOWERS_DATA);
-  HAL_Delay(2000);
-  BSP_LCD_DrawBitmap(0,0,RAIN_DATA);
-  HAL_Delay(2000);
-  BSP_LCD_DrawBitmap(193,0,FOGGY_DATA);
-  BSP_LCD_SetFont(&Font12);
-  char message[50] = "Temperature of Min: 2°C & Max: 8°C";
-  BSP_LCD_DisplayStringAtLine(14, message);
+  vScreenInit();
+  vScreenTouchInit();
+  TS_StateTypeDef  State;
+  uint8_t ucMenu = 3; //Menu staat bijhouden
   //BSP_LCD_LayerRgb565Init(0, PARTLYSUNNY_DATA);
   /* USER CODE END 2 */
 
@@ -138,7 +111,11 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-
+	  BSP_TS_GetState( &State );
+	  if( State.touchDetected )
+	  {
+		  ucMenu = ucScreenSwitch( ucMenu );
+	  }
   }
   /* USER CODE END 3 */
 
