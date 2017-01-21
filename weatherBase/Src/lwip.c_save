@@ -42,8 +42,6 @@
 /* ETH Variables initialization ----------------------------------------------*/
 void Error_Handler(void);
 
- 
-
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
@@ -56,60 +54,61 @@ ip4_addr_t gw;
 uint8_t IP_ADDRESS[4];
 uint8_t NETMASK_ADDRESS[4];
 uint8_t GATEWAY_ADDRESS[4];
-#n/* USER CODE BEGIN 2 */
+
+/* USER CODE BEGIN 2 */
 
 /* USER CODE END 2 */
-#n
+
 /**
-#t* LwIP initialization function
-#t*/
+  * LwIP initialization function
+  */
 void MX_LWIP_Init(void)
 {
-#t/* IP addresses initialization */
-#tIP_ADDRESS[0] = 192;
-#tIP_ADDRESS[1] = 168;
-#tIP_ADDRESS[2] = 0;
-#tIP_ADDRESS[3] = 50;
-#tNETMASK_ADDRESS[0] = 255;
-#tNETMASK_ADDRESS[1] = 255;
-#tNETMASK_ADDRESS[2] = 255;
-#tNETMASK_ADDRESS[3] = 0;
-#tGATEWAY_ADDRESS[0] = 192;
-#tGATEWAY_ADDRESS[1] = 168;
-#tGATEWAY_ADDRESS[2] = 0;
-#tGATEWAY_ADDRESS[3] = 1;
-#t
-#t/* Initilialize the LwIP stack without RTOS */
-#tlwip_init();
-#n#t/* IP addresses initialization without DHCP (IPv4) */
-#tIP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
-#tIP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
-#tIP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
-#n#t/* add the network interface (IPv4/IPv6) without RTOS */
-#tnetif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
-#n
-#t/* Registers the default network interface */
-#tnetif_set_default(&gnetif);
-#n
-#tif (netif_is_link_up(&gnetif))
-#t{
-#t#t/* When the netif is fully configured this function must be called */
-#t#tnetif_set_up(&gnetif);
-#t}
-#telse
-#t{
-#t#t/* When the netif link is down this function must be called */
-#t#tnetif_set_down(&gnetif);
-#t}
-#n
-#n
-#n
-#n/* USER CODE BEGIN 3 */
-#n
+  /* IP addresses initialization */
+  IP_ADDRESS[0] = 192;
+  IP_ADDRESS[1] = 168;
+  IP_ADDRESS[2] = 0;
+  IP_ADDRESS[3] = 50;
+  NETMASK_ADDRESS[0] = 255;
+  NETMASK_ADDRESS[1] = 255;
+  NETMASK_ADDRESS[2] = 255;
+  NETMASK_ADDRESS[3] = 0;
+  GATEWAY_ADDRESS[0] = 192;
+  GATEWAY_ADDRESS[1] = 168;
+  GATEWAY_ADDRESS[2] = 0;
+  GATEWAY_ADDRESS[3] = 1;
+  
+  /* Initilialize the LwIP stack without RTOS */
+  lwip_init();
+
+  /* IP addresses initialization without DHCP (IPv4) */
+  IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
+  IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
+  IP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
+
+  /* add the network interface (IPv4/IPv6) without RTOS */
+  netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
+
+  /* Registers the default network interface */
+  netif_set_default(&gnetif);
+
+  if (netif_is_link_up(&gnetif))
+  {
+    /* When the netif is fully configured this function must be called */
+    netif_set_up(&gnetif);
+  }
+  else
+  {
+    /* When the netif link is down this function must be called */
+    netif_set_down(&gnetif);
+  }
+
+/* USER CODE BEGIN 3 */
+
 /* USER CODE END 3 */
 }
 /* USER CODE BEGIN 4 */
-#n
+
 /**
  * ----------------------------------------------------------------------
  * Function given to help user to continue LwIP Initialization
