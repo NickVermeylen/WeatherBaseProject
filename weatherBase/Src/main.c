@@ -39,6 +39,7 @@
 /*#include <unistd.h>
 #include <limits.h>*/
 #include "own/Processing.h"
+#include "own/screen.h"
 //#include <ctype.h>
 #include "jsmn.h"
 //#include "cJSON.h"
@@ -325,7 +326,14 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
   //DISPLAY INIT MET BSP
-  BSP_LCD_Init();
+  vScreenInit();
+  vScreenTouchInit();
+  //BSP_TS_ITConfig();
+  TS_StateTypeDef  State;
+  uint8_t ucMenu = 3; //Menu staat bijhouden
+
+
+  /*BSP_LCD_Init();
   BSP_LCD_LayerDefaultInit(0,LCD_FB_START_ADDRESS);
   BSP_LCD_LayerDefaultInit(1,LCD_FB_START_ADDRESS + (BSP_LCD_GetXSize()*BSP_LCD_GetYSize()*4));
   BSP_LCD_DisplayOn();
@@ -338,7 +346,7 @@ int main(void)
 
   BSP_LCD_SelectLayer(1);
   BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
-  BSP_LCD_SetBackColor(LCD_COLOR_RED);
+  BSP_LCD_SetBackColor(LCD_COLOR_RED);*/
 
   //char *host = "api.openweathermap.org";
   struct ip4_addr serverIp;
@@ -379,9 +387,7 @@ int main(void)
 	  		BSP_LCD_DisplayStringAtLine(2, message);
 	  		BSP_LCD_DisplayStringAtLine(3, errorval);*/
   }
-
-  BSP_LCD_SetFont(&Font8);
-  BSP_LCD_DisplayStringAtLine(8, server_reply);
+  int n = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -391,7 +397,13 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  MX_LWIP_Process();
+
+	  //MX_LWIP_Process();
+	  BSP_TS_GetState( &State );
+	  if( State.touchDetected )
+	  {
+		  ucMenu = ucScreenSwitch( ucMenu );
+	  }
   }
   /* USER CODE END 3 */
 
