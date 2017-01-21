@@ -71,7 +71,7 @@ void vProcessingSnipping( char ucInfo[2000] , data * pxInput )
 	}
 	else
 	{
-		HAL_UART_Transmit( &huart1, ( uint8_t* ) "No MATCH for TEMP\n\r\n\r" , strlen( "No MATCH for TEMP\n\r\n\r" ) , 100 );
+		HAL_UART_Transmit( &huart1, ( uint8_t* ) "No MATCH\n\r\n\r" , strlen( "No MATCH\n\r\n\r" ) , 100 );
 	}
 }
 

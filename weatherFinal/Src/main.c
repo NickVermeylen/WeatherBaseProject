@@ -172,6 +172,9 @@ int main(void)
   vScreenInit();
   vScreenTouchInit();
 
+  /*
+   *Spijtig dat Touch en LWIP zo moeilijk deden samen..
+   */
   /*while( !xState.touchDetected )
   {
 	  BSP_TS_GetState( &xState );
@@ -209,6 +212,7 @@ int main(void)
   case 1 : scErrorval = tcp_connect( pxTcpconnection , &xServerIp , usPort , xConnected1 ); break;
   case 2 : scErrorval = tcp_connect( pxTcpconnection , &xServerIp , usPort , xConnected2 ); break;
   case 3 : scErrorval = tcp_connect( pxTcpconnection , &xServerIp , usPort , xConnected3 ); break;
+  default : break;
   }*/
 
   //Connectie opzetten met server

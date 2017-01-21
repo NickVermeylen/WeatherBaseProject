@@ -16,6 +16,11 @@
 #include "StartBttn_data.h"
 #include "Sleet_data.h"
 #include "Storm_data.h"
+
+#define screenSPRITEX 192
+#define screenSPRITEY 156
+#define screenBTTNX 195
+#define screenBTTNY 52
 /*-----------------------------------------------------------*/
 
 /* Begin Static function prototypes */
@@ -33,6 +38,9 @@
 
 /* Begin public functions */
 
+/*
+ * Init het LCD Scherm
+ */
 void vScreenInit( void )
 {
 	BSP_LCD_Init();
@@ -48,15 +56,18 @@ void vScreenInit( void )
 	BSP_LCD_SelectLayer( 0 );
 	BSP_LCD_Clear( LCD_COLOR_BLACK );
 	BSP_LCD_SelectLayer( 1 );
-	BSP_LCD_Clear( LCD_COLOR_DARKMAGENTA );
+	BSP_LCD_Clear( LCD_COLOR_WHITE );
 	BSP_LCD_SetTransparency( 0 , 0 );
 	BSP_LCD_SetTransparency( 1 , 255 );
 
 	BSP_LCD_SelectLayer(1);
-	BSP_LCD_DrawBitmap( ( usX - 195 ) / 2 , ( usY - 52 ) / 2 , STARTBTTN_DATA );
-
+	BSP_LCD_DrawBitmap( ( usX - screenBTTNX ) / 2 , ( usY - screenBTTNY ) / 2 , STARTBTTN_DATA );
+	BSP_LCD_DisplayStringAt( 0 , ( usY - screenBTTNY ) / 2 + 100 , "Plz Press Blue PushButton" , CENTER_MODE );
 }
 
+/*
+ * Init de touchscreen
+ */
 void vScreenTouchInit( void )
 {
 	  //Touchscreen part
@@ -67,13 +78,17 @@ void vScreenTouchInit( void )
 	  BSP_TS_Init( usX , usY );
 }
 
+/*
+ * Tekent Het "current weather" scherm me de data van de serverresponse
+ */
 void vScreenDraw( data xInput )
 {
 	uint32_t usX = 0;
+	char ucMessage[50] = "";
 
 	usX = BSP_LCD_GetXSize();
 
-	BSP_LCD_Clear(LCD_COLOR_DARKMAGENTA);
+	BSP_LCD_Clear(LCD_COLOR_WHITE);
 
 	//Huidig weer code
 	switch( xInput.usCode )
@@ -91,25 +106,25 @@ void vScreenDraw( data xInput )
 	}
 	//BSP_LCD_DisplayStringAtLine(15, xInput.usCode);
 	//print temperature
-	BSP_LCD_SetFont( &Font12 );
-	char ucMessage[50] = "Temperature of Min: ";
+	BSP_LCD_SetFont( &Font16 );
+	sprintf( ucMessage , "Temperature of Min: " );
 	strcat( ucMessage , xInput.ucMin );
-	strcat( ucMessage , "°C & Max: " );
+	strcat( ucMessage , "C & Max: " );
 	strcat( ucMessage , xInput.ucMax );
-	strcat( ucMessage , "°C" );
+	strcat( ucMessage , "C" );
 	BSP_LCD_DisplayStringAt( 0 , 156 + 10 , ucMessage , CENTER_MODE );
 
 	//print clouds en wind
 	sprintf( ucMessage , xInput.ucClouds );
 	strcat( ucMessage , " & " );
 	strcat( ucMessage , xInput.ucWind );
-	BSP_LCD_DisplayStringAt( 0 , 156 + 20 , ucMessage , CENTER_MODE );
+	BSP_LCD_DisplayStringAt( 0 , 156 + 30 , ucMessage , CENTER_MODE );
 
 	//print clouds en wind
 	BSP_LCD_SetFont( &Font16 );
 	BSP_LCD_SetTextColor( LCD_COLOR_DARKGREEN );
 	sprintf( ucMessage , "But it'll probably rain anyway!" );
-	BSP_LCD_DisplayStringAt( 0 , 156 + 40 , ucMessage , CENTER_MODE );
+	BSP_LCD_DisplayStringAt( 0 , 156 + 70 , ucMessage , CENTER_MODE );
 
 }
 
