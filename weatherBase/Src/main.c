@@ -46,7 +46,6 @@
 #include "stm32746g_discovery_lcd.h"
 #include "stm32746g_discovery_sdram.h"
 #include "stm32746g_discovery_ts.h"
-#include "tmp/test.txt"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -416,15 +415,17 @@ int main(void)
 		BSP_LCD_SetFont(&Font12);
 		BSP_LCD_DisplayStringAtLine(16, errorval);
 		//State.touchDetected = 1;
-		HAL_Delay(1500);
-		  if( State.touchDetected )
-		  {
+		//HAL_Delay(1500);
+		  /*if( HAL_GPIO_ReadPin(GPIOI, BLUEPUSH_Pin) )
+		  {*/
+			  //HAL_Delay(200);
 				errorval = "Got in Menu";
 				BSP_LCD_SetFont(&Font12);
 				BSP_LCD_DisplayStringAtLine(17, errorval);
 			  ucMenu++;
-			  ucMenu = ucScreenSwitch( ucMenu );
-		  }
+
+		  /*}*/
+		  ucMenu = ucScreenSwitch( ucMenu );
 	  }
   }
   /* USER CODE END 3 */
@@ -673,18 +674,26 @@ static void MX_FMC_Init(void)
 static void MX_GPIO_Init(void)
 {
 
+  GPIO_InitTypeDef GPIO_InitStruct;
+
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOJ_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOI_CLK_ENABLE();
   __HAL_RCC_GPIOK_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
-  __HAL_RCC_GPIOJ_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOE_CLK_ENABLE();
+
+  /*Configure GPIO pin : BLUEPUSH_Pin */
+  GPIO_InitStruct.Pin = BLUEPUSH_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(BLUEPUSH_GPIO_Port, &GPIO_InitStruct);
 
 }
 

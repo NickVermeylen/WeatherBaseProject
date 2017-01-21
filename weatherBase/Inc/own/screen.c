@@ -69,7 +69,7 @@ void vScreenTouchInit( void )
 
 uint8_t ucScreenSwitch( uint8_t ucMenu )
 {
-	ucMenu++;
+	//ucMenu++;
 	if( ucMenu > 3 )
 	{
 	  ucMenu = 0;
@@ -111,12 +111,34 @@ static void prvScreenDrawScrn1( void )
 
 static void prvScreenDrawScrn2( void )
 {
+	uint32_t usX = 0;
+	uint32_t usY = 0;
 
+	usX = BSP_LCD_GetXSize();
+	usY = BSP_LCD_GetYSize();
+
+	BSP_LCD_Clear(LCD_COLOR_DARKMAGENTA);
+	BSP_LCD_DrawBitmap( (usX-192)/2 , 0 , RAIN_DATA);
+	BSP_LCD_SetFont(&Font12);
+	char message[50] = "Temperature of Min: 2°C & Max: 8°C";
+	//BSP_LCD_DisplayStringAtLine(14, message);
+	BSP_LCD_DisplayStringAt( 0 , 156+10 , message , CENTER_MODE );
 }
 
 static void prvScreenDrawScrn3( void )
 {
+	uint32_t usX = 0;
+	uint32_t usY = 0;
 
+	usX = BSP_LCD_GetXSize();
+	usY = BSP_LCD_GetYSize();
+
+	BSP_LCD_Clear(LCD_COLOR_DARKMAGENTA);
+	BSP_LCD_DrawBitmap( (usX-192)/2 , 0 , SUNNY_DATA );
+	BSP_LCD_SetFont(&Font12);
+	char message[50] = "Temperature of Min: 2°C & Max: 8°C";
+	//BSP_LCD_DisplayStringAtLine(14, message);
+	BSP_LCD_DisplayStringAt( 0 , 156+10 , message , CENTER_MODE );
 }
 
 /*-----------------------------------------------------------*/

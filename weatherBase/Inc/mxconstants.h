@@ -43,6 +43,8 @@
 
 /* USER CODE BEGIN Private defines */
 
+#define BLUEPUSH_Pin GPIO_PIN_11
+#define BLUEPUSH_GPIO_Port GPIOI
 /* USER CODE END Private defines */
 
 /**
