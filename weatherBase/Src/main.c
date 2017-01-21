@@ -66,6 +66,7 @@ SDRAM_HandleTypeDef hsdram1;
 char server_reply[2000];
 int counter;
 data weather;
+uint8_t ucConnectie = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -265,6 +266,7 @@ int ParseJson(char server_reply[800], int len)
 
 err_t received(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 {
+	ucConnectie++;
 	BSP_LCD_SetFont(&Font8);
 	char message[50] = "Recieving data:";
 	BSP_LCD_DisplayStringAtLine(4, message);
@@ -279,6 +281,7 @@ err_t received(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 }
 err_t connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
+	ucConnectie++;
 	char message[50] = "Connected with api";
 	BSP_LCD_SetFont(&Font8);
 	BSP_LCD_DisplayStringAtLine(2, (uint8_t*) message);
@@ -296,6 +299,11 @@ err_t err(void *arg, struct tcp_pcb *tpcb, err_t err){
 		BSP_LCD_SetFont(&Font8);
 		BSP_LCD_DisplayStringAtLine(2, (uint8_t*) message);
 		return 0;
+}
+void checkState( TS_StateTypeDef * State )
+{
+	//BSP_TS_ITConfig();
+	//BSP_TS_GetState(State);
 }
 /* USER CODE END 0 */
 
@@ -339,6 +347,13 @@ int main(void)
   BSP_LCD_SelectLayer(1);
   BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
   BSP_LCD_SetBackColor(LCD_COLOR_RED);
+  uint32_t usX = 0;
+  uint32_t usY = 0;
+  usX = BSP_LCD_GetXSize();
+  usY = BSP_LCD_GetYSize();
+  BSP_TS_Init( usX , usY );
+  TS_StateTypeDef  State;
+  uint8_t ucMenu = 3; //Menu staat bijhouden
 
   //char *host = "api.openweathermap.org";
   struct ip4_addr serverIp;
@@ -371,14 +386,11 @@ int main(void)
   struct tcp_pcb *tcpconnection;
   tcpconnection = tcp_new();
   char *errorval;
-  if(tcp_connect(tcpconnection, &serverIp, port, connected)!= "ERR_OK")
-  {
-	  /*char * message = "Function doesnt work";
-	  		errorval = "Well this does display something";
-	  		BSP_LCD_SetFont(&Font12);
-	  		BSP_LCD_DisplayStringAtLine(2, message);
-	  		BSP_LCD_DisplayStringAtLine(3, errorval);*/
-  }
+  int count = 1;
+  errorval = tcp_connect(tcpconnection, &serverIp, port, connected);
+  BSP_LCD_SetFont(&Font12);
+  BSP_LCD_DisplayStringAtLine(10, errorval);
+
 
   BSP_LCD_SetFont(&Font8);
   BSP_LCD_DisplayStringAtLine(8, server_reply);
@@ -392,6 +404,28 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 	  MX_LWIP_Process();
+	  if(ucConnectie > 2)
+	  {
+		  //tcp_close(tcpconnection);
+		errorval = "Got In IF";
+		BSP_LCD_SetFont(&Font12);
+		BSP_LCD_DisplayStringAtLine(15, errorval);
+		BSP_TS_ResetTouchData( &State );
+		checkState( &State );
+		errorval = "Got Past State";
+		BSP_LCD_SetFont(&Font12);
+		BSP_LCD_DisplayStringAtLine(16, errorval);
+		//State.touchDetected = 1;
+		HAL_Delay(1500);
+		  if( State.touchDetected )
+		  {
+				errorval = "Got in Menu";
+				BSP_LCD_SetFont(&Font12);
+				BSP_LCD_DisplayStringAtLine(17, errorval);
+			  ucMenu++;
+			  ucMenu = ucScreenSwitch( ucMenu );
+		  }
+	  }
   }
   /* USER CODE END 3 */
 
