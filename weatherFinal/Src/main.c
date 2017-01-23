@@ -142,8 +142,8 @@ int main(void)
 	int8_t scErrorval;
 	uint8_t ucMenu = 0; //Menu staat bijhouden
 	uint16_t usPort = 80;
-	uint32_t usX = 0;  //TouchScreen x en y
-	uint32_t usY = 0;
+	uint32_t ulX = 0;  //TouchScreen x en y
+	uint32_t ulY = 0;
 	TS_StateTypeDef  xState;
 	struct tcp_pcb * pxTcpconnection;
 	struct ip4_addr xServerIp;
@@ -178,17 +178,17 @@ int main(void)
   /*while( !xState.touchDetected )
   {
 	  BSP_TS_GetState( &xState );
-	  usX = xState.touchX[0];
-	  usY = xState.touchY[0];
-	  if( xState.touchDetected && usX > 60 && usX < 440 && usY > 10 && usY < 50 )
+	  ulX = xState.touchX[0];
+	  ulY = xState.touchY[0];
+	  if( xState.touchDetected && ulX > 60 && ulX < 440 && ulY > 10 && ulY < 50 )
 	  {
 		  ucMenu = 1;
 	  }
-	  else if( xState.touchDetected && usX > 60 && usX < 440 && usY > 60 && usY < 100 )
+	  else if( xState.touchDetected && ulX > 60 && ulX < 440 && ulY > 60 && ulY < 100 )
 	  {
 		  ucMenu = 2;
 	  }
-	  else if( xState.touchDetected && usX > 60 && usX < 440 && usY > 110 && usY < 150 )
+	  else if( xState.touchDetected && ulX > 60 && ulX < 440 && ulY > 110 && ulY < 150 )
 	  {
 		  ucMenu = 3;
 	  }

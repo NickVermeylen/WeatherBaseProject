@@ -45,13 +45,13 @@ void vScreenInit( void )
 {
 	BSP_LCD_Init();
 
-	uint32_t usX = 0;
-	uint32_t usY = 0;
-	usX = BSP_LCD_GetXSize();
-	usY = BSP_LCD_GetYSize();
+	uint32_t ulX = 0;
+	uint32_t ulY = 0;
+	ulX = BSP_LCD_GetXSize();
+	ulY = BSP_LCD_GetYSize();
 
 	BSP_LCD_LayerDefaultInit( 0 , LCD_FB_START_ADDRESS );
-	BSP_LCD_LayerDefaultInit( 1 , LCD_FB_START_ADDRESS + ( usX * usY * 4 ));
+	BSP_LCD_LayerDefaultInit( 1 , LCD_FB_START_ADDRESS + ( ulX * ulY * 4 ));
 	BSP_LCD_DisplayOn();
 	BSP_LCD_SelectLayer( 0 );
 	BSP_LCD_Clear( LCD_COLOR_BLACK );
@@ -61,8 +61,8 @@ void vScreenInit( void )
 	BSP_LCD_SetTransparency( 1 , 255 );
 
 	BSP_LCD_SelectLayer(1);
-	BSP_LCD_DrawBitmap( ( usX - screenBTTNX ) / 2 , ( usY - screenBTTNY ) / 2 , STARTBTTN_DATA );
-	BSP_LCD_DisplayStringAt( 0 , ( usY - screenBTTNY ) / 2 + 100 , "Plz Press Blue PushButton" , CENTER_MODE );
+	BSP_LCD_DrawBitmap( ( ulX - screenBTTNX ) / 2 , ( ulY - screenBTTNY ) / 2 , STARTBTTN_DATA );
+	BSP_LCD_DisplayStringAt( 0 , ( ulY - screenBTTNY ) / 2 + 100 , "Plz Press Blue PushButton" , CENTER_MODE );
 }
 
 /*
@@ -71,11 +71,11 @@ void vScreenInit( void )
 void vScreenTouchInit( void )
 {
 	  //Touchscreen part
-	  uint32_t usX = 0;
-	  uint32_t usY = 0;
-	  usX = BSP_LCD_GetXSize();
-	  usY = BSP_LCD_GetYSize();
-	  BSP_TS_Init( usX , usY );
+	  uint32_t ulX = 0;
+	  uint32_t ulY = 0;
+	  ulX = BSP_LCD_GetXSize();
+	  ulY = BSP_LCD_GetYSize();
+	  BSP_TS_Init( ulX , ulY );
 }
 
 /*
@@ -83,10 +83,10 @@ void vScreenTouchInit( void )
  */
 void vScreenDraw( data xInput )
 {
-	uint32_t usX = 0;
+	uint32_t ulX = 0;
 	char ucMessage[50] = "";
 
-	usX = BSP_LCD_GetXSize();
+	ulX = BSP_LCD_GetXSize();
 
 	BSP_LCD_Clear(LCD_COLOR_WHITE);
 
@@ -94,14 +94,14 @@ void vScreenDraw( data xInput )
 	switch( xInput.usCode )
 	{
 
-		case 2 : BSP_LCD_DrawBitmap( ( usX - 192 ) / 2 , 0 , STORM_DATA ); break;
-		case 3 : BSP_LCD_DrawBitmap( ( usX - 192 ) / 2 , 0 , SLEET_DATA ); break;
-		case 5 : BSP_LCD_DrawBitmap( ( usX - 192 ) / 2 , 0 , RAIN_DATA ); break;
-		case 6 : BSP_LCD_DrawBitmap( ( usX - 192 ) / 2 , 0 , SHOWERS_DATA ); break;
-		case 7 : BSP_LCD_DrawBitmap( ( usX - 192 ) / 2 , 0 , FOGGY_DATA ); break;
-		case 8 : BSP_LCD_DrawBitmap( ( usX - 192 ) / 2 , 0 , CLOUDY_DATA ); break;
-		case 12 : BSP_LCD_DrawBitmap( ( usX - 192 ) / 2 , 0 , SUNNY_DATA ); break;
-		default : BSP_LCD_DrawBitmap( ( usX - 192 ) / 2 , 0 , SUNNY_DATA ); break;
+		case 2 : BSP_LCD_DrawBitmap( ( ulX - 192 ) / 2 , 0 , STORM_DATA ); break;
+		case 3 : BSP_LCD_DrawBitmap( ( ulX - 192 ) / 2 , 0 , SLEET_DATA ); break;
+		case 5 : BSP_LCD_DrawBitmap( ( ulX - 192 ) / 2 , 0 , RAIN_DATA ); break;
+		case 6 : BSP_LCD_DrawBitmap( ( ulX - 192 ) / 2 , 0 , SHOWERS_DATA ); break;
+		case 7 : BSP_LCD_DrawBitmap( ( ulX - 192 ) / 2 , 0 , FOGGY_DATA ); break;
+		case 8 : BSP_LCD_DrawBitmap( ( ulX - 192 ) / 2 , 0 , CLOUDY_DATA ); break;
+		case 12 : BSP_LCD_DrawBitmap( ( ulX - 192 ) / 2 , 0 , SUNNY_DATA ); break;
+		default : BSP_LCD_DrawBitmap( ( ulX - 192 ) / 2 , 0 , SUNNY_DATA ); break;
 
 	}
 	//BSP_LCD_DisplayStringAtLine(15, xInput.usCode);
